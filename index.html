@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Readiness Quickscan</title>
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --surface-hover: #252540;
+    --orange: #ff6b35;
+    --orange-light: #ff8c5a;
+    --white: #f0f0f0;
+    --muted: #8a8aa0;
+    --border: #2a2a45;
+    --green: #4caf50;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 640px;
+    width: 100%;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .header .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .brand {
+    color: var(--orange);
+  }
+
+  /* Progress bar */
+  .progress-wrapper {
+    margin-bottom: 32px;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--surface);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    margin-bottom: 24px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-card h2 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* Options */
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .option:hover {
+    border-color: var(--orange);
+    background: var(--surface-hover);
+  }
+
+  .option:active {
+    transform: scale(0.98);
+  }
+
+  .option-label {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--orange);
+    transition: all 0.2s ease;
+  }
+
+  .option:hover .option-label {
+    border-color: var(--orange);
+    background: rgba(255, 107, 53, 0.1);
+  }
+
+  .option-text {
+    font-size: 0.95rem;
+    padding-top: 4px;
+  }
+
+  /* Result screen */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px 24px;
+    text-align: center;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .result-score {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--orange);
+    margin-bottom: 4px;
+  }
+
+  .result-max {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .result-profile {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    color: #000;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 8px 24px;
+    border-radius: 24px;
+    margin-bottom: 16px;
+  }
+
+  .result-description {
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: 480px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+
+  .result-breakdown {
+    text-align: left;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    margin-top: 8px;
+  }
+
+  .result-breakdown h3 {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+
+  .breakdown-row:last-child {
+    border-bottom: none;
+  }
+
+  .breakdown-answer {
+    color: var(--orange);
+    font-weight: 600;
+  }
+
+  /* Restart button */
+  .restart-btn {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 12px 32px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+
+  .restart-btn:hover {
+    border-color: var(--orange);
+    color: var(--white);
+  }
+
+  /* Error state */
+  .error-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 48px 24px;
+    text-align: center;
+  }
+
+  .error-card h2 {
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+  }
+
+  .error-card p {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .footer a {
+    color: var(--orange);
+    text-decoration: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    body { padding: 16px 12px; }
+    .question-card { padding: 24px 16px; }
+    .result-card { padding: 32px 16px; }
+    .header h1 { font-size: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <!-- Populated by JS -->
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var app = document.getElementById('app');
+  var quizData = null;
+  var currentQuestion = 0;
+  var answers = [];
+
+  var profiles = [
+    { min: 5,  max: 7,  name: 'De Starter',     desc: 'Jullie staan aan het begin van de AI-reis. Dat is prima: er liggen enorme kansen. Focus nu op bewustwording, experimenteer met laagdrempelige tools en bouw een eerste business case.' },
+    { min: 8,  max: 9,  name: 'De Verkenner',    desc: 'De interesse en eerste experimenten zijn er. Nu is het tijd om van losse initiatieven naar een gestructureerde aanpak te gaan. Een duidelijke datastrategie en pilotproject maken het verschil.' },
+    { min: 10, max: 11, name: 'De Groeier',      desc: 'De basis staat en er zijn al concrete resultaten. Jullie zijn klaar voor serieuze pilot-projecten, data-integratie en het trainen van teams op AI-vaardigheden.' },
+    { min: 12, max: 13, name: 'De Versneller',   desc: 'Jullie gaan hard. De uitdaging is nu: opschalen van losse successen naar bedrijfsbrede implementatie. Denk aan governance, standaardisatie en het meten van ROI.' },
+    { min: 14, max: 15, name: 'De Koploper',     desc: 'AI zit in jullie DNA. Jullie lopen voorop in de sector. Focus op continue innovatie, kennisdeling en het voorblijven van de concurrentie met geavanceerde toepassingen.' }
+  ];
+
+  function init() {
+    try {
+      var hash = window.location.hash;
+      if (!hash || hash.indexOf('#data=') !== 0) {
+        showError();
+        return;
+      }
+      var b64 = hash.substring(6);
+      var json = decodeURIComponent(escape(atob(b64)));
+      quizData = JSON.parse(json);
+
+      if (!quizData.vragen || quizData.vragen.length === 0) {
+        showError();
+        return;
+      }
+
+      renderQuestion();
+    } catch (e) {
+      showError();
+    }
+  }
+
+  function showError() {
+    app.innerHTML =
+      '<div class="header">' +
+        '<h1><span class="brand">AI Panda</span> Quickscan</h1>' +
+      '</div>' +
+      '<div class="error-card">' +
+        '<h2>Geen quiz gevonden</h2>' +
+        '<p>Deze pagina heeft quizdata nodig in de URL. Vraag je AI Panda consultant om een nieuwe link.</p>' +
+      '</div>' +
+      '<div class="footer">Powered by <a href="https://aipanda.nl" target="_blank">AI Panda</a></div>';
+  }
+
+  function renderQuestion() {
+    var total = quizData.vragen.length;
+    var q = quizData.vragen[currentQuestion];
+    var pct = ((currentQuestion) / total * 100).toFixed(0);
+
+    var html =
+      '<div class="header">' +
+        '<h1><span class="brand">AI Panda</span> Quickscan</h1>' +
+        '<div class="subtitle">' + escapeHtml(quizData.bedrijf || '') +
+        (quizData.sector ? ' &mdash; ' + escapeHtml(quizData.sector) : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="progress-wrapper">' +
+        '<div class="progress-label">' +
+          '<span>Vraag ' + (currentQuestion + 1) + ' van ' + total + '</span>' +
+          '<span>' + pct + '%</span>' +
+        '</div>' +
+        '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+      '</div>' +
+      '<div class="question-card">' +
+        '<h2>' + escapeHtml(q.vraag) + '</h2>';
+
+    for (var i = 0; i < q.opties.length; i++) {
+      var opt = q.opties[i];
+      html += '<div class="option" data-score="' + opt.score + '" data-index="' + i + '">' +
+        '<div class="option-label">' + escapeHtml(opt.label) + '</div>' +
+        '<div class="option-text">' + escapeHtml(opt.tekst) + '</div>' +
+      '</div>';
+    }
+
+    html += '</div>' +
+      '<div class="footer">Powered by <a href="https://aipanda.nl" target="_blank">AI Panda</a></div>';
+
+    app.innerHTML = html;
+
+    var options = app.querySelectorAll('.option');
+    for (var j = 0; j < options.length; j++) {
+      options[j].addEventListener('click', handleAnswer);
+    }
+  }
+
+  function handleAnswer(e) {
+    var el = e.currentTarget;
+    var score = parseInt(el.getAttribute('data-score'), 10);
+    var index = parseInt(el.getAttribute('data-index'), 10);
+    var q = quizData.vragen[currentQuestion];
+
+    answers.push({
+      vraag: q.vraag,
+      gekozen: q.opties[index].label,
+      tekst: q.opties[index].tekst,
+      score: score
+    });
+
+    currentQuestion++;
+
+    if (currentQuestion < quizData.vragen.length) {
+      renderQuestion();
+    } else {
+      renderResult();
+    }
+  }
+
+  function renderResult() {
+    var total = 0;
+    for (var i = 0; i < answers.length; i++) {
+      total += answers[i].score;
+    }
+
+    var profile = profiles[0];
+    for (var p = 0; p < profiles.length; p++) {
+      if (total >= profiles[p].min && total <= profiles[p].max) {
+        profile = profiles[p];
+        break;
+      }
+    }
+
+    var maxScore = quizData.vragen.length * 3;
+
+    var html =
+      '<div class="header">' +
+        '<h1><span class="brand">AI Panda</span> Quickscan</h1>' +
+        '<div class="subtitle">' + escapeHtml(quizData.bedrijf || '') +
+        (quizData.sector ? ' &mdash; ' + escapeHtml(quizData.sector) : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="progress-wrapper">' +
+        '<div class="progress-label"><span>Resultaat</span><span>100%</span></div>' +
+        '<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>' +
+      '</div>' +
+      '<div class="result-card">' +
+        '<div class="result-score">' + total + '</div>' +
+        '<div class="result-max">van ' + maxScore + ' punten</div>' +
+        '<div class="result-profile">' + escapeHtml(profile.name) + '</div>' +
+        '<p class="result-description">' + escapeHtml(profile.desc) + '</p>' +
+        '<div class="result-breakdown">' +
+          '<h3>Jouw antwoorden</h3>';
+
+    for (var a = 0; a < answers.length; a++) {
+      html += '<div class="breakdown-row">' +
+        '<span>' + escapeHtml(answers[a].vraag.substring(0, 60)) + (answers[a].vraag.length > 60 ? '...' : '') + '</span>' +
+        '<span class="breakdown-answer">' + escapeHtml(answers[a].gekozen) + ' (' + answers[a].score + 'pt)</span>' +
+      '</div>';
+    }
+
+    html += '</div>' +
+      '<button class="restart-btn" id="restart">Opnieuw invullen</button>' +
+      '</div>' +
+      '<div class="footer">Powered by <a href="https://aipanda.nl" target="_blank">AI Panda</a></div>';
+
+    app.innerHTML = html;
+
+    document.getElementById('restart').addEventListener('click', function() {
+      currentQuestion = 0;
+      answers = [];
+      renderQuestion();
+    });
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
