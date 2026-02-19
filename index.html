@@ -474,6 +474,27 @@
     return div.innerHTML;
   }
 
+  function notifyHeight() {
+    var height = document.body.scrollHeight;
+    try {
+      window.parent.postMessage({ height: height }, '*');
+    } catch (e) {}
+  }
+
+  // Observe body size changes (animations, dynamic content)
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(notifyHeight).observe(document.body);
+  }
+
+  var _renderQuestion = renderQuestion;
+  renderQuestion = function() { _renderQuestion(); notifyHeight(); };
+
+  var _renderResult = renderResult;
+  renderResult = function() { _renderResult(); notifyHeight(); };
+
+  var _showError = showError;
+  showError = function() { _showError(); notifyHeight(); };
+
   init();
 })();
 </script>
